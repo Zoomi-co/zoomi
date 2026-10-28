@@ -1,0 +1,58 @@
+{
+  "name": "@zoomi/site",
+  "version": "0.1.0",
+  "description": "Zoomi CMS core for client sites: schema, content client, brand, tags, SEO and preview.",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    "./schema": {
+      "types": "./dist/schema.d.ts",
+      "default": "./dist/schema.js"
+    },
+    "./brand": {
+      "types": "./dist/brand.d.ts",
+      "default": "./dist/brand.js"
+    },
+    "./tags": {
+      "types": "./dist/tags.d.ts",
+      "default": "./dist/tags.js"
+    },
+    "./client": {
+      "types": "./dist/client.d.ts",
+      "default": "./dist/client.js"
+    },
+    "./render": {
+      "types": "./dist/render.d.ts",
+      "default": "./dist/render.js"
+    },
+    "./preview": {
+      "types": "./dist/preview.d.ts",
+      "default": "./dist/preview.js"
+    },
+    "./consent": {
+      "types": "./dist/consent.d.ts",
+      "default": "./dist/consent.js"
+    },
+    "./next": {
+      "types": "./dist/next.d.ts",
+      "default": "./dist/next.js"
+    },
+    "./signing": {
+      "types": "./dist/signing.d.ts",
+      "default": "./dist/signing.js"
+    },
+    "./seo": {
+      "types": "./dist/seo.d.ts",
+      "default": "./dist/seo.js"
+    }
+  },
+  "peerDependencies": {
+    "next": ">=16.2.0",
+    "react": ">=19.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dartydan/my.git",
+    "directory": "packages/site"
+  }
+}

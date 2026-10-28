@@ -24,50 +24,25 @@ lower on the page:
 
 ## Tech
 
-The homepage is a static site with no application framework:
+zoomi.co is a Next.js site whose content comes from the Zoomi CMS at
+[my.zoomi.co](https://my.zoomi.co) (repo `dartydan/my`). Text, menus, brand
+colors, business details and tracking tags are edited there; publishing
+refreshes the live site within seconds. Layout, motion and illustrations stay
+in this repo so the editorial design can't drift.
 
 ```text
-index.html   semantic page structure, metadata, and schema
-os.css       complete responsive visual system and motion
-os.js        menu, reveal, scroll-progress, and pointer interactions
+src/zoomi/schema.ts    the editable sections and their fields (registered with the CMS on every build)
+src/zoomi/blocks.tsx   how each section renders
+src/components/        header, menu, footer, motion (was os.js)
+public/os.css          the visual system; bump CSS_VERSION in src/app/layout.tsx with any change
+public/                film, photos, share image, and the older static pages (/id/dan, /team, /marketing)
+vendor/zoomi-site      the @zoomi/site core package from dartydan/my (replaced by update PRs)
 ```
-
-Google Fonts supplies the typefaces, and Google Tag Manager remains connected.
-The old Three.js/ZoomiOS interface has been removed from the homepage.
 
 ## Run locally
 
 ```bash
-npm start -- -p 4173
+cp .env.example .env.local   # keys from my.zoomi.co/admin
+npm install
+npm run dev                  # http://localhost:3001
 ```
-
-Then open `http://127.0.0.1:4173`.
-
-## Deploy
-
-The site is served as static files through GitHub Pages. `CNAME` points to
-`zoomi.co`; `robots.txt` and `sitemap.xml` are served from the repository root.
-
-## SEO and GEO
-
-- Canonical host is `https://zoomi.co/` (www.zoomi.co currently returns a 522).
-- `index.html` carries the title, description, canonical, Open Graph/Twitter
-  tags with `og-image.png`, and a JSON-LD graph (Organization +
-  ProfessionalService, Zoomi Audit SoftwareApplication, WebSite, FAQPage).
-- The visible FAQ mirrors the FAQPage schema; keep them in sync.
-- `robots.txt` explicitly allows AI search crawlers; `llms.txt` gives answer
-  engines a plain-text summary; `sitemap.xml` lists only canonical URLs.
-
-## Hero film
-
-The hero plays "What Zoomi does", a 23s explainer in an editorial paper-collage
-style: `motion/hero-explainer.webm` / `.mp4` (960x540, muted loop) with
-`motion/hero-explainer-poster.jpg` as the poster. It only starts from `os.js`, so
-visitors with reduced motion (or no JS) see the poster. The "Sound" button in the
-caption unmutes it and restarts from the top.
-
-`motion/source.html` is the frame-accurate source and player (play, scrub, sound).
-It exposes `window.seek(t)`, `window.DURATION` and `window.scoreSound`: render
-frames with Playwright by calling `seek(i / 30)`, render the audio with
-`SOUND.renderOffline(scoreSound, DURATION, 48000)`, then encode with ffmpeg.
-The client in the film (Hartwell Precision) is a fictional example.

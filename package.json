@@ -1,33 +1,27 @@
 {
   "name": "zoomi",
-  "version": "1.0.0",
-  "main": "cursor.js",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
   "scripts": {
-    "build": "npx @tailwindcss/cli -i ./input.css -o ./dist/output.css",
-    "build:watch": "npx @tailwindcss/cli -i ./input.css -o ./dist/output.css --watch",
-    "start": "http-server -c-1 --cors",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/dartydan/zoomi.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/dartydan/zoomi/issues"
-  },
-  "homepage": "https://github.com/dartydan/zoomi#readme",
-  "description": "",
-  "devDependencies": {
-    "@tailwindcss/cli": "^4.1.12",
-    "autoprefixer": "^10.4.21",
-    "http-server": "^14.1.1",
-    "postcss": "^8.5.6",
-    "tailwindcss": "^4.1.12"
+    "dev": "next dev -p 3001",
+    "build": "node --env-file-if-exists=.env.local scripts/register-schema.ts && next build",
+    "start": "next start -p 3001",
+    "register-schema": "node --env-file-if-exists=.env.local scripts/register-schema.ts"
   },
   "dependencies": {
-    "three": "^0.179.1"
+    "@zoomi/site": "file:./vendor/zoomi-site",
+    "next": "16.4.3",
+    "react": "19.3.0",
+    "react-dom": "19.3.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "typescript": "^5"
+  },
+  "engines": {
+    "node": ">=22.18"
   }
 }
