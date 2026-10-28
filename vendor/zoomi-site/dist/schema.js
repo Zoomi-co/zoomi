@@ -45,7 +45,23 @@ export const defaultSeo = {
     defaultDescription: "",
     defaultImage: null,
     indexable: true,
+    legal: {},
 };
+// ---------- Legal pages ----------
+/** Standard legal pages. Each is served at its path as plain text once it has content, unless a CMS page uses the path. */
+export const LEGAL_PAGES = [
+    { key: "privacy", title: "Privacy policy", path: "/privacy" },
+    { key: "terms", title: "Terms of use", path: "/terms" },
+    { key: "cookies", title: "Cookie policy", path: "/cookies" },
+    { key: "accessibility", title: "Accessibility statement", path: "/accessibility" },
+];
+/** Legal pages that have content. */
+export function legalPages(site) {
+    return LEGAL_PAGES.map((p) => ({ ...p, body: site.seo.legal?.[p.key]?.trim() ?? "" })).filter((p) => p.body);
+}
+export function legalPageFor(site, path) {
+    return legalPages(site).find((p) => p.path === path) ?? null;
+}
 /** Merge stored brand over defaults, then apply the design's locked values. */
 export function resolveBrand(stored, schema) {
     const s = stored ?? {};
@@ -96,6 +112,23 @@ export function listItemDefaults(field) {
     for (const [key, f] of Object.entries(field.fields))
         item[key] = defaultForField(f);
     return item;
+}
+/** How many blocks of this type one page may hold, or undefined for no limit. */
+export function blockLimit(schema, type) {
+    return type === "hero" ? 1 : schema.blocks[type]?.maxPerPage;
+}
+/** Block types a page already holds as many of as it may. Hidden blocks count too. */
+export function blocksAtLimit(schema, blocks) {
+    const counts = new Map();
+    for (const b of blocks)
+        counts.set(b.type, (counts.get(b.type) ?? 0) + 1);
+    const full = new Set();
+    for (const [type, n] of counts) {
+        const max = blockLimit(schema, type);
+        if (max !== undefined && n >= max)
+            full.add(type);
+    }
+    return full;
 }
 const HEX = /^#(?:[0-9a-f]{3}|[0-9a-f]{6})$/i;
 function isEmpty(value) {
@@ -167,9 +200,17 @@ function checkField(field, value, where, issues, pageIds) {
 }
 export function validateBlocks(schema, blocks, pageIds) {
     const issues = [];
+    const seen = new Map();
     for (const block of blocks) {
         if (block.hidden)
             continue;
+        const n = (seen.get(block.type) ?? 0) + 1;
+        seen.set(block.type, n);
+        const max = blockLimit(schema, block.type);
+        if (max !== undefined && n > max) {
+            const label = schema.blocks[block.type]?.label ?? block.type;
+            issues.push({ blockId: block.id, blockLabel: label, message: `A page can have ${max === 1 ? "only one" : `at most ${max}`} ${label} block${max === 1 ? "" : "s"}. Delete this one.` });
+        }
         const def = schema.blocks[block.type];
         if (!def) {
             issues.push({ blockId: block.id, message: `Block type "${block.type}" is no longer available on this site.` });

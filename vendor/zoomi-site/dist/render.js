@@ -46,3 +46,8 @@ export function videoEmbedUrl(url) {
         return `https://player.vimeo.com/video/${vimeo[1]}?dnt=1`;
     return null;
 }
+/** A legal page from Settings: its title and plain text. Blank lines start paragraphs; single line breaks are kept. */
+export function LegalPage({ page, className = "zoomi-legal" }) {
+    const paragraphs = page.body.split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean);
+    return (_jsxs("article", { className: className, style: { maxWidth: 720, margin: "0 auto", padding: "64px 20px", lineHeight: 1.6 }, children: [_jsx("h1", { children: page.title }), paragraphs.map((p, i) => (_jsx("p", { style: { whiteSpace: "pre-line" }, children: p }, i)))] }));
+}

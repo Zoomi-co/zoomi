@@ -1,3 +1,4 @@
+import { legalPages } from "./schema.js";
 export function pageTitle(site, page) {
     const title = page.seo.title?.trim() || page.title;
     if (page.path === "/" && page.seo.title?.trim())
@@ -26,12 +27,26 @@ export function buildMetadata(site, page) {
         verification: site.tags.gscVerification ? { google: site.tags.gscVerification } : undefined,
     };
 }
+/** Metadata for a plain-text legal page. */
+export function buildLegalMetadata(site, page) {
+    return {
+        title: site.seo.titleTemplate.replace("%page%", page.title).replace("%site%", site.brand.business.name || site.name),
+        alternates: { canonical: new URL(page.path, site.url).toString() },
+        robots: site.seo.indexable ? undefined : { index: false, follow: false },
+        icons: site.brand.favicon ? { icon: site.brand.favicon.url, apple: site.brand.favicon.url } : undefined,
+    };
+}
+/** CMS pages plus filled-in legal pages (a CMS page at the same path wins). */
 export function buildSitemap(site, pages) {
     if (!site.seo.indexable)
         return [];
-    return pages
-        .filter((p) => !p.noindex)
-        .map((p) => ({ url: new URL(p.path, site.url).toString(), lastModified: p.updatedAt }));
+    const taken = new Set(pages.map((p) => p.path));
+    return [
+        ...pages.filter((p) => !p.noindex).map((p) => ({ url: new URL(p.path, site.url).toString(), lastModified: p.updatedAt })),
+        ...legalPages(site)
+            .filter((p) => !taken.has(p.path))
+            .map((p) => ({ url: new URL(p.path, site.url).toString(), lastModified: site.updatedAt })),
+    ];
 }
 export function buildRobots(site) {
     if (!site.seo.indexable)

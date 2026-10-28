@@ -1,6 +1,6 @@
 "use client";
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { buildTagScripts } from "./tags.js";
 const STORAGE_KEY = "zoomi-consent";
@@ -77,7 +77,6 @@ function allowed(category, choice) {
 export function ZoomiTags({ tags, path: pathProp, geoEndpoint = "/api/zoomi/geo" }) {
     const pathname = usePathname();
     const path = pathProp ?? pathname ?? "/";
-    const firstPath = useRef(path);
     const [showBanner, setShowBanner] = useState(false);
     const [choice, setChoice] = useState(null);
     // Decide consent once per page load.
@@ -121,15 +120,14 @@ export function ZoomiTags({ tags, path: pathProp, geoEndpoint = "/api/zoomi/geo"
             cancelled = true;
         };
     }, [tags, geoEndpoint]);
-    // Inject whatever the current choice allows. Google tags always load when consent is on; Consent Mode gates them.
+    // Inject whatever the current choice allows. GTM always loads when consent is on; Consent Mode gates its tags.
     useEffect(() => {
         if (!choice)
             return;
         const scripts = buildTagScripts(tags, path);
         const run = () => {
             for (const s of scripts) {
-                const isGoogle = s.id.startsWith("gtag") || s.id === "gtm";
-                if (allowed(s.category, choice) || (tags.consent.enabled && isGoogle))
+                if (allowed(s.category, choice) || (tags.consent.enabled && s.id === "gtm"))
                     inject(s);
             }
         };
@@ -140,19 +138,13 @@ export function ZoomiTags({ tags, path: pathProp, geoEndpoint = "/api/zoomi/geo"
         const t = setTimeout(run, 1);
         return () => clearTimeout(t);
     }, [choice, tags, path]);
-    // GA4 tracks client-side navigation itself; Meta Pixel needs a PageView per route change.
-    useEffect(() => {
-        if (path === firstPath.current)
-            return;
-        firstPath.current = path;
-        window.fbq?.("track", "PageView");
-    }, [path]);
     if (!showBanner)
         return null;
     const decide = (analytics, marketing) => {
         const next = { analytics, marketing, at: Date.now() };
         saveChoice(next);
         setConsentMode("update", next);
+        window.dataLayer.push({ event: "zoomi_consent_update", analytics_consent: analytics, marketing_consent: marketing });
         setChoice(next);
         setShowBanner(false);
     };
@@ -179,16 +171,10 @@ export function ZoomiTags({ tags, path: pathProp, geoEndpoint = "/api/zoomi/geo"
             alignItems: "center",
         }, children: [_jsxs("p", { style: { margin: 0, flex: "1 1 260px", lineHeight: 1.45 }, children: [tags.consent.message, " ", tags.consent.privacyPath ? (_jsx("a", { href: tags.consent.privacyPath, style: { color: "inherit" }, children: "Privacy policy" })) : null] }), _jsxs("div", { style: { display: "flex", gap: 8 }, children: [_jsx("button", { type: "button", onClick: () => decide(false, false), style: { padding: "8px 14px", borderRadius: 8, border: "1px solid currentColor", background: "transparent", color: "inherit", cursor: "pointer" }, children: "Decline" }), _jsx("button", { type: "button", onClick: () => decide(true, true), style: { padding: "8px 14px", borderRadius: 8, border: "none", background: "var(--color-primary, #141414)", color: "var(--color-background, #fff)", cursor: "pointer" }, children: "Accept" })] })] }));
 }
-/** Fire a lead conversion on every connected platform. Call after a form submits successfully. */
-export function trackLead(formName, googleAds) {
+/** Tell GTM a form was sent. Conversions (GA4, Google Ads, Meta and so on) are set up as GTM tags on this event. */
+export function trackLead(formName) {
     if (typeof window === "undefined")
         return;
-    window.gtag?.("event", "generate_lead", { form_name: formName });
-    if (googleAds?.label)
-        window.gtag?.("event", "conversion", { send_to: `${googleAds.id}/${googleAds.label}` });
-    window.dataLayer?.push({ event: "zoomi_form_submit", form_name: formName });
-    window.fbq?.("track", "Lead", { content_name: formName });
-    window.lintrk?.("track", { conversion_id: formName });
-    window.uetq?.push("event", "submit_lead_form", {});
-    window.ttq?.track("SubmitForm", { content_name: formName });
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({ event: "zoomi_form_submit", form_name: formName });
 }

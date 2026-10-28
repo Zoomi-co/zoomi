@@ -1,5 +1,5 @@
 import { type ComponentType } from "react";
-import type { BlockInstance, ImageValue, PublishedSite } from "./schema.js";
+import type { BlockInstance, ImageValue, LegalPage as LegalPageData, PublishedSite } from "./schema.js";
 export type BlockProps<P = Record<string, unknown>> = P & {
     block: {
         id: string;
@@ -36,3 +36,8 @@ export declare function imageProps(img: ImageValue | null | undefined): {
 } | null;
 /** Embed URL for a YouTube or Vimeo link, or null if it isn't one. */
 export declare function videoEmbedUrl(url: unknown): string | null;
+/** A legal page from Settings: its title and plain text. Blank lines start paragraphs; single line breaks are kept. */
+export declare function LegalPage({ page, className }: {
+    page: LegalPageData;
+    className?: string;
+}): import("react").JSX.Element;

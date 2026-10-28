@@ -3,12 +3,6 @@ declare global {
     interface Window {
         dataLayer?: unknown[];
         gtag?: (...args: unknown[]) => void;
-        fbq?: (...args: unknown[]) => void;
-        lintrk?: (...args: unknown[]) => void;
-        uetq?: unknown[];
-        ttq?: {
-            track: (...args: unknown[]) => void;
-        };
     }
 }
 /**
@@ -20,8 +14,5 @@ export declare function ZoomiTags({ tags, path: pathProp, geoEndpoint }: {
     path?: string;
     geoEndpoint?: string;
 }): import("react").JSX.Element | null;
-/** Fire a lead conversion on every connected platform. Call after a form submits successfully. */
-export declare function trackLead(formName: string, googleAds?: {
-    id: string;
-    label?: string;
-}): void;
+/** Tell GTM a form was sent. Conversions (GA4, Google Ads, Meta and so on) are set up as GTM tags on this event. */
+export declare function trackLead(formName: string): void;

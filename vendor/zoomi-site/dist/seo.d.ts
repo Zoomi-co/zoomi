@@ -1,7 +1,10 @@
 import type { Metadata, MetadataRoute } from "next";
-import type { PageSummary, PublishedPage, PublishedSite, Redirect } from "./schema.js";
+import { type LegalPage, type PageSummary, type PublishedPage, type PublishedSite, type Redirect } from "./schema.js";
 export declare function pageTitle(site: PublishedSite, page: PublishedPage): string;
 export declare function buildMetadata(site: PublishedSite, page: PublishedPage): Metadata;
+/** Metadata for a plain-text legal page. */
+export declare function buildLegalMetadata(site: PublishedSite, page: LegalPage): Metadata;
+/** CMS pages plus filled-in legal pages (a CMS page at the same path wins). */
 export declare function buildSitemap(site: PublishedSite, pages: PageSummary[]): MetadataRoute.Sitemap;
 export declare function buildRobots(site: PublishedSite): MetadataRoute.Robots;
 /** Exact match first, then wildcard rules like /old-blog/*. */

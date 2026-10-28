@@ -90,6 +90,8 @@ export type BlockDef = {
     category?: string;
     /** Path (relative to the site) of a thumbnail shown in the block picker. */
     thumbnail?: string;
+    /** Most of this block one page can hold. Hero blocks are always one per page. */
+    maxPerPage?: number;
     fields: Record<string, Field>;
 };
 export type TemplateDef = {
@@ -203,7 +205,8 @@ export type Navigation = {
         link: LinkValue;
     } | null;
 };
-export type IntegrationKey = "ga4" | "gtm" | "googleAds" | "metaPixel" | "linkedin" | "clarity" | "uet" | "tiktok";
+/** Google Tag Manager is the one built-in integration. Every other tool is added inside the GTM container. */
+export type IntegrationKey = "gtm";
 export type Integration = {
     enabled: boolean;
     id: string;
@@ -224,11 +227,7 @@ export type Snippet = {
     disabledByAdmin?: boolean;
 };
 export type Tags = {
-    integrations: Partial<Record<IntegrationKey, Integration>> & {
-        googleAds?: Integration & {
-            conversionLabel?: string;
-        };
-    };
+    integrations: Partial<Record<IntegrationKey, Integration>>;
     snippets: Snippet[];
     consent: {
         enabled: boolean;
@@ -239,11 +238,14 @@ export type Tags = {
     };
     gscVerification: string;
 };
+export type LegalKey = "privacy" | "terms" | "cookies" | "accessibility";
 export type Seo = {
     titleTemplate: string;
     defaultDescription: string;
     defaultImage: ImageValue | null;
     indexable: boolean;
+    /** Plain text of each legal page, set in Settings. An empty one has no page. Optional: older settings lack it. */
+    legal?: Partial<Record<LegalKey, string>>;
 };
 export type PublishedSite = {
     id: string;
@@ -264,10 +266,29 @@ export declare const defaultBrand: Brand;
 export declare const defaultNav: Navigation;
 export declare const defaultTags: Tags;
 export declare const defaultSeo: Seo;
+/** Standard legal pages. Each is served at its path as plain text once it has content, unless a CMS page uses the path. */
+export declare const LEGAL_PAGES: {
+    key: LegalKey;
+    title: string;
+    path: string;
+}[];
+export type LegalPage = {
+    key: LegalKey;
+    title: string;
+    path: string;
+    body: string;
+};
+/** Legal pages that have content. */
+export declare function legalPages(site: Pick<PublishedSite, "seo">): LegalPage[];
+export declare function legalPageFor(site: Pick<PublishedSite, "seo">, path: string): LegalPage | null;
 /** Merge stored brand over defaults, then apply the design's locked values. */
 export declare function resolveBrand(stored: Partial<Brand> | null | undefined, schema?: SiteSchema | null): Brand;
 export declare function defaultProps(def: BlockDef): Record<string, unknown>;
 export declare function listItemDefaults(field: ListField): Record<string, unknown>;
+/** How many blocks of this type one page may hold, or undefined for no limit. */
+export declare function blockLimit(schema: SiteSchema, type: string): number | undefined;
+/** Block types a page already holds as many of as it may. Hidden blocks count too. */
+export declare function blocksAtLimit(schema: SiteSchema, blocks: BlockInstance[]): Set<string>;
 export type ValidationIssue = {
     blockId?: string;
     blockLabel?: string;
