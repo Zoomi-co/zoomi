@@ -2,7 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
         <loc>https://zoomi.co/</loc>
-        <lastmod>2026-10-20</lastmod>
+        <lastmod>2026-10-29</lastmod>
         <changefreq>monthly</changefreq>
         <priority>1.0</priority>
     </url>
@@ -11,5 +11,29 @@
         <lastmod>2026-10-29</lastmod>
         <changefreq>yearly</changefreq>
         <priority>0.5</priority>
+    </url>
+    <url>
+        <loc>https://zoomi.co/services/brand-identity</loc>
+        <lastmod>2026-10-29</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://zoomi.co/services/web-design</loc>
+        <lastmod>2026-10-29</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://zoomi.co/services/marketing-strategy</loc>
+        <lastmod>2026-10-29</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://zoomi.co/services/seo</loc>
+        <lastmod>2026-10-29</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
     </url>
 </urlset>
