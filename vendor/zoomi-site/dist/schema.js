@@ -96,7 +96,7 @@ function defaultForField(field) {
         case "number":
             return field.default ?? null;
         case "list":
-            return [];
+            return (field.default ?? []).map((item) => ({ ...listItemDefaults(field), ...item, _key: globalThis.crypto.randomUUID() }));
         default:
             return null;
     }

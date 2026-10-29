@@ -3,7 +3,7 @@ import type { Viewport } from "next";
 import Script from "next/script";
 
 // Bump with any change to public/os.css so browsers drop the cached stylesheet.
-const CSS_VERSION = "202610281500";
+const CSS_VERSION = "202610282200";
 
 export const viewport: Viewport = { themeColor: "#f2efe7", width: "device-width", initialScale: 1, viewportFit: "cover" };
 

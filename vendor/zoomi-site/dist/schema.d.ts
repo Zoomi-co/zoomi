@@ -81,6 +81,8 @@ export type ListField = FieldBase & {
     fields: Record<string, ScalarField>;
     min?: number;
     max?: number;
+    /** Items a new block starts with, so it looks finished the moment it's added. */
+    default?: Record<string, unknown>[];
 };
 export type ScalarField = TextField | RichTextField | ImageField | FileField | LinkField | SelectField | ToggleField | NumberField | VideoField;
 export type Field = ScalarField | ListField;
