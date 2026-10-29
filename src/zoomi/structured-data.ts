@@ -1,4 +1,4 @@
-import { stripTags, type PublishedPage, type PublishedSite } from "@zoomi/site/schema";
+import { plainText, type PublishedPage, type PublishedSite } from "@zoomi/site/schema";
 
 type Item = Record<string, string>;
 
@@ -10,7 +10,7 @@ export function homeJsonLd(site: PublishedSite, page: PublishedPage) {
   const services = blocks("services").flatMap((x) => (x.items as Item[] | undefined) ?? []);
   const ventures = blocks("ventures").flatMap((x) => (x.items as (Item & { link?: { href?: string; url?: string } })[] | undefined) ?? []);
   const faqs = blocks("faq").flatMap((x) => (x.items as Item[] | undefined) ?? []);
-  const text = (html: string) => stripTags(html).replace(/&amp;/g, "&").replace(/&nbsp;/g, " ").replace(/\s+/g, " ").trim();
+  const text = (html: string) => plainText(html).replace(/\*/g, "").replace(/\s+/g, " ").trim();
 
   return {
     "@context": "https://schema.org",
@@ -33,7 +33,7 @@ export function homeJsonLd(site: PublishedSite, page: PublishedPage) {
           ? {
               "@type": "OfferCatalog",
               name: "Marketing services",
-              itemListElement: services.map((s) => ({ "@type": "Offer", itemOffered: { "@type": "Service", name: s.title, description: s.body || undefined } })),
+              itemListElement: services.map((s) => ({ "@type": "Offer", itemOffered: { "@type": "Service", name: s.title, description: s.body ? text(s.body) : undefined } })),
             }
           : undefined,
         subOrganization: ventures

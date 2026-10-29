@@ -1,8 +1,8 @@
 import { Fragment, type CSSProperties, type ReactNode } from "react";
-import { RichText, imageProps, videoEmbedUrl, type BlockProps, type BlockRegistry } from "@zoomi/site/render";
+import { RichText, field, imageProps, videoEmbedUrl, type BlockMeta, type BlockProps, type BlockRegistry } from "@zoomi/site/render";
 import type { ImageValue, LinkValue } from "@zoomi/site/schema";
 import { Doodle } from "@/components/doodle";
-import { Emphasis, lines, list, plain } from "@/components/emphasis";
+import { Emphasis, lines, list, plain, wholeItalic } from "@/components/emphasis";
 import { SiteLink } from "@/components/site-link";
 
 // Block components must stay synchronous and browser-safe: the CMS preview renders them client-side.
@@ -43,21 +43,25 @@ function Picture({ image, className, sizes = "100vw", eager }: { image: Img; cla
   return <img {...props} className={className} sizes={sizes} loading={eager ? "eager" : "lazy"} decoding="async" />;
 }
 
-/** Heading with optional small text above and intro beside, in the site's section rhythm. */
-function Head({ id, kicker, heading, intro, level = "h2" }: { id: string; kicker?: string | null; heading?: string | null; intro?: string | null; level?: "h1" | "h2" }) {
+/** Heading with optional small text above and intro beside, in the site's section rhythm. Edits the block's kicker, heading and intro fields. */
+function Head({ id, block, kicker, heading, intro, level = "h2" }: { id: string; block: BlockMeta; kicker?: string | null; heading?: string | null; intro?: string | null; level?: "h1" | "h2" }) {
   if (!heading && !intro && !kicker) return null;
   const H = level;
   return (
     <div className="section-head section-head--wide block-head reveal">
       <div>
-        {kicker ? <p className="block-kicker">{kicker}</p> : null}
+        {kicker ? <p className="block-kicker" {...field(block, "kicker")}>{kicker}</p> : null}
         {heading ? (
-          <H id={id}>
+          <H id={id} {...field(block, "heading")}>
             <Emphasis text={heading} />
           </H>
         ) : null}
       </div>
-      {intro ? <p>{intro}</p> : null}
+      {intro ? (
+        <p {...field(block, "intro")}>
+          <Emphasis text={intro} />
+        </p>
+      ) : null}
     </div>
   );
 }
@@ -85,26 +89,33 @@ function HeroBlock({ kicker, kickerRight, headline, intro, buttonLabel, button, 
   return (
     <section className="hero" aria-labelledby="hero-title">
       <div className="hero-kicker reveal">
-        <span>{kicker}</span>
-        <span>{kickerRight}</span>
+        <span {...field(block, "kicker")}>{kicker}</span>
+        <span {...field(block, "kickerRight")}>{kickerRight}</span>
       </div>
 
       <div className="hero-grid hero-grid--film">
         <div className="hero-copy">
-          <Heading id="hero-title" aria-label={rows.map(plain).join(" ")}>
+          <Heading id="hero-title" aria-label={rows.map(plain).join(" ")} {...field(block, "headline", { join: "\n" })}>
             {rows.map((row, i) => {
-              const serif = /^\*.*\*$/.test(row);
+              const serif = wholeItalic(row);
               return (
-                <span key={i} className={serif ? "line serif" : "line"}>
-                  <span>{serif ? row.slice(1, -1) : row}</span>
+                <span key={i} className={serif !== null ? "line serif" : "line"}>
+                  {/* The serif row is italic by design; in-place editing reads it back as italic. */}
+                  <span {...(serif !== null && block.preview ? { "data-zoomi-as": "em" } : {})}>
+                    <Emphasis text={serif ?? row} />
+                  </span>
                 </span>
               );
             })}
           </Heading>
-          {intro ? <p className="hero-intro reveal">{intro}</p> : null}
+          {intro ? (
+            <p className="hero-intro reveal" {...field(block, "intro")}>
+              <Emphasis text={intro} />
+            </p>
+          ) : null}
           <div className="hero-actions reveal">
-            <SiteLink link={button} className="button-primary">
-              {buttonLabel || "Get in touch"} <span aria-hidden="true">↗</span>
+            <SiteLink link={button} className="button-primary" {...field(block, "buttonLabel")}>
+              <Emphasis text={buttonLabel || "Get in touch"} /> <span aria-hidden="true">↗</span>
             </SiteLink>
           </div>
         </div>
@@ -121,7 +132,7 @@ function HeroBlock({ kicker, kickerRight, headline, intro, buttonLabel, button, 
             )}
           </div>
           <div className="art-caption art-caption--film">
-            <span>{filmCaption}</span>
+            <span {...field(block, "filmCaption")}>{filmCaption}</span>
             {art === "image" ? null : (
               <span className="film-controls">
                 <button className="film-play" type="button">
@@ -147,7 +158,7 @@ function HeroBlock({ kicker, kickerRight, headline, intro, buttonLabel, button, 
         {list(footerWords, ",").map((word, i) => (
           <span key={i}>{word}</span>
         ))}
-        <SiteLink link={footerLink}>
+        <SiteLink link={footerLink} {...field(block, "footerLinkLabel")}>
           {footerLinkLabel || "What we do"} <b aria-hidden="true">↓</b>
         </SiteLink>
       </div>
@@ -182,19 +193,25 @@ function ServicesBlock({ heading, doodle, anchor, items, block }: BlockProps<Ser
     <section className="services section-pad" id={anchorId(anchor, "services")} aria-labelledby={titleId(block)}>
       <div className="section-head section-head--right reveal">
         {doodle === false ? null : <Doodle />}
-        <h2 id={titleId(block)}>
+        <h2 id={titleId(block)} {...field(block, "heading")}>
           <Emphasis text={heading} />
         </h2>
       </div>
 
       <div className="service-list">
-        {(items ?? []).map((item) => (
+        {(items ?? []).map((item, n) => (
           <article key={item._key} className="service-row reveal">
-            <h3 className="service-title">{item.title}</h3>
+            <h3 className="service-title" {...field(block, `items.${n}.title`)}>
+              {item.title}
+            </h3>
             <div className="service-body">
-              {item.body ? <p>{item.body}</p> : null}
+              {item.body ? (
+                <p {...field(block, `items.${n}.body`)}>
+                  <Emphasis text={item.body} />
+                </p>
+              ) : null}
               {lines(item.tags).length ? (
-                <ul className="service-tags">
+                <ul className="service-tags" {...field(block, `items.${n}.tags`, { join: "\n" })}>
                   {lines(item.tags).map((tag, i) => (
                     <li key={i}>{tag}</li>
                   ))}
@@ -214,22 +231,26 @@ function AuditBlock({ heading, body, points, buttonLabel, button, tone, anchor, 
     <section className={`audit-band section-pad ${toneClass(tone, "blue")}`} id={anchorId(anchor, "audit")} aria-labelledby={titleId(block)}>
       <div className="audit-band-inner reveal">
         <div>
-          <h2 id={titleId(block)}>
+          <h2 id={titleId(block)} {...field(block, "heading")}>
             <Emphasis text={heading} />
           </h2>
-          {body ? <p>{body}</p> : null}
+          {body ? (
+            <p {...field(block, "body")}>
+              <Emphasis text={body} />
+            </p>
+          ) : null}
         </div>
         <div className="audit-band-actions">
           {lines(points).length ? (
-            <ul>
+            <ul {...field(block, "points", { join: "\n" })}>
               {lines(points).map((point, i) => (
                 <li key={i}>{point}</li>
               ))}
             </ul>
           ) : null}
           {buttonLabel ? (
-            <SiteLink link={button} className="button-primary button-primary--ink" always>
-              {buttonLabel} <span aria-hidden="true">↗</span>
+            <SiteLink link={button} className="button-primary button-primary--ink" always {...field(block, "buttonLabel")}>
+              <Emphasis text={buttonLabel} /> <span aria-hidden="true">↗</span>
             </SiteLink>
           ) : null}
         </div>
@@ -244,7 +265,7 @@ function StudioBlock({ heading, body, stats, noteLabel, note, anchor, block }: B
   return (
     <section className="studio" id={anchorId(anchor, "company")} aria-labelledby={titleId(block)}>
       <div className="studio-top section-pad">
-        <h2 id={titleId(block)}>
+        <h2 id={titleId(block)} {...field(block, "heading", { join: "\n" })}>
           {lines(heading).map((row, i) => (
             <span key={i} className="reveal">
               <Emphasis text={row} />
@@ -252,25 +273,31 @@ function StudioBlock({ heading, body, stats, noteLabel, note, anchor, block }: B
           ))}
         </h2>
         {paragraphs.length ? (
-          <div className="studio-copy reveal">
+          <div className="studio-copy reveal" {...field(block, "body", { join: "\n\n" })}>
             {paragraphs.map((p, i) => (
-              <p key={i}>{p}</p>
+              <p key={i}>
+                <Emphasis text={p} />
+              </p>
             ))}
           </div>
         ) : null}
       </div>
 
       <div className="studio-stats">
-        {(stats ?? []).map((stat) => (
+        {(stats ?? []).map((stat, n) => (
           <div key={stat._key} className={/\d/.test(stat.value) ? "stat reveal" : "stat stat--word reveal"}>
-            <span className="stat-value">{stat.value}</span>
-            <span className="stat-label">{stat.label}</span>
+            <span className="stat-value" {...field(block, `stats.${n}.value`)}>
+              {stat.value}
+            </span>
+            <span className="stat-label" {...field(block, `stats.${n}.label`)}>
+              {stat.label}
+            </span>
           </div>
         ))}
         {note ? (
           <div className="stat-note reveal">
-            <span>{noteLabel}</span>
-            <p aria-label={lines(note).join(" ")}>
+            <span {...field(block, "noteLabel")}>{noteLabel}</span>
+            <p aria-label={lines(note).map(plain).join(" ")} {...field(block, "note")}>
               <Emphasis text={note} />
             </p>
           </div>
@@ -285,10 +312,14 @@ function FaqBlock({ heading, intro, anchor, items, block }: BlockProps<Faq>) {
   return (
     <section className="faq section-pad" id={anchorId(anchor, "faq")} aria-labelledby={titleId(block)}>
       <div className="section-head section-head--wide reveal">
-        <h2 id={titleId(block)} className="one-line">
+        <h2 id={titleId(block)} className="one-line" {...field(block, "heading")}>
           <Emphasis text={heading} />
         </h2>
-        {intro ? <p>{intro}</p> : null}
+        {intro ? (
+          <p {...field(block, "intro")}>
+            <Emphasis text={intro} />
+          </p>
+        ) : null}
       </div>
 
       <div className="faq-list">
@@ -296,9 +327,9 @@ function FaqBlock({ heading, intro, anchor, items, block }: BlockProps<Faq>) {
           <details key={item._key} className="faq-item reveal" open={i === 0}>
             <summary>
               <span>{String(i + 1).padStart(2, "0")}</span>
-              <h3>{item.question}</h3>
+              <h3 {...field(block, `items.${i}.question`)}>{item.question}</h3>
             </summary>
-            <RichText html={item.answer} />
+            <RichText html={item.answer} {...field(block, `items.${i}.answer`)} />
           </details>
         ))}
       </div>
@@ -317,10 +348,14 @@ function VenturesBlock({ heading, intro, anchor, items, block }: BlockProps<{ he
   return (
     <section className="ventures ventures--compact section-pad" id={anchorId(anchor, "ventures")} aria-labelledby={titleId(block)}>
       <div className="section-head section-head--wide reveal">
-        <h2 id={titleId(block)} className="one-line">
+        <h2 id={titleId(block)} className="one-line" {...field(block, "heading")}>
           <Emphasis text={heading} />
         </h2>
-        {intro ? <p>{intro}</p> : null}
+        {intro ? (
+          <p {...field(block, "intro")}>
+            <Emphasis text={intro} />
+          </p>
+        ) : null}
       </div>
 
       <div className="venture-list">
@@ -334,11 +369,15 @@ function VenturesBlock({ heading, intro, anchor, items, block }: BlockProps<{ he
                 <b>{v.markText}</b>
               </div>
               <div className="venture-name">
-                <h3>{v.name}</h3>
-                {v.tagline ? <p>{v.tagline}</p> : null}
+                <h3 {...field(block, `items.${i}.name`)}>{v.name}</h3>
+                {v.tagline ? <p {...field(block, `items.${i}.tagline`)}>{v.tagline}</p> : null}
               </div>
-              {v.description ? <p className="venture-desc">{v.description}</p> : null}
-              <div className="venture-tags">
+              {v.description ? (
+                <p className="venture-desc" {...field(block, `items.${i}.description`)}>
+                  <Emphasis text={v.description} />
+                </p>
+              ) : null}
+              <div className="venture-tags" {...field(block, `items.${i}.tags`, { join: ", " })}>
                 {list(v.tags, ",").map((tag, j) => (
                   <span key={j}>{tag}</span>
                 ))}
@@ -362,10 +401,14 @@ function PageHeaderBlock({ kicker, headline, intro, buttonLabel, button, image, 
   const Heading = block.index === 0 ? "h1" : "h2";
   return (
     <section className={`page-header section-pad ${toneClass(tone, "paper")} ${below ? "page-header--below" : "page-header--side"}`} aria-labelledby={titleId(block)}>
-      {kicker ? <p className="page-header-kicker reveal">{kicker}</p> : null}
+      {kicker ? (
+        <p className="page-header-kicker reveal" {...field(block, "kicker")}>
+          {kicker}
+        </p>
+      ) : null}
       <div className="page-header-grid">
         <div className="page-header-copy">
-          <Heading id={titleId(block)} className="page-header-title">
+          <Heading id={titleId(block)} className="page-header-title" {...field(block, "headline", { join: "\n" })}>
             {lines(headline).map((row, i) => (
               <span key={i} className="line">
                 <span>
@@ -376,10 +419,14 @@ function PageHeaderBlock({ kicker, headline, intro, buttonLabel, button, image, 
           </Heading>
           {intro || buttonLabel ? (
             <div className="page-header-intro reveal">
-              {intro ? <p>{intro}</p> : null}
+              {intro ? (
+                <p {...field(block, "intro")}>
+                  <Emphasis text={intro} />
+                </p>
+              ) : null}
               {buttonLabel ? (
-                <SiteLink link={button} className="button-primary" always>
-                  {buttonLabel} <span aria-hidden="true">↗</span>
+                <SiteLink link={button} className="button-primary" always {...field(block, "buttonLabel")}>
+                  <Emphasis text={buttonLabel} /> <span aria-hidden="true">↗</span>
                 </SiteLink>
               ) : null}
             </div>
@@ -399,33 +446,41 @@ function TextBlock({ kicker, heading, body, layout, tone, anchor, block }: Block
     <section className={`text-block section-pad ${toneClass(tone, "paper")} ${column ? "text-block--column" : "text-block--split"}`} id={anchorId(anchor)} aria-labelledby={heading ? titleId(block) : undefined}>
       {kicker || heading ? (
         <div className="text-block-head reveal">
-          {kicker ? <p className="block-kicker">{kicker}</p> : null}
+          {kicker ? (
+            <p className="block-kicker" {...field(block, "kicker")}>
+              {kicker}
+            </p>
+          ) : null}
           {heading ? (
-            <h2 id={titleId(block)}>
+            <h2 id={titleId(block)} {...field(block, "heading")}>
               <Emphasis text={heading} />
             </h2>
           ) : null}
         </div>
       ) : null}
-      <RichText html={body} className="prose reveal" />
+      <RichText html={body} className="prose reveal" {...field(block, "body")} />
     </section>
   );
 }
 
 type Statement = { text: string; note?: string; tone?: string; anchor?: string };
-function StatementBlock({ text, note, tone, anchor }: BlockProps<Statement>) {
+function StatementBlock({ text, note, tone, anchor, block }: BlockProps<Statement>) {
   return (
     <section className={`statement section-pad ${toneClass(tone, "deep")}`} id={anchorId(anchor)}>
-      <p className="statement-text reveal">
+      <p className="statement-text reveal" {...field(block, "text")}>
         <Emphasis text={text} />
       </p>
-      {note ? <p className="statement-note reveal">{note}</p> : null}
+      {note ? (
+        <p className="statement-note reveal" {...field(block, "note")}>
+          {note}
+        </p>
+      ) : null}
     </section>
   );
 }
 
 type Quote = { quote: string; name?: string; role?: string; photo?: Img; tone?: string; anchor?: string };
-function QuoteBlock({ quote, name, role, photo, tone, anchor }: BlockProps<Quote>) {
+function QuoteBlock({ quote, name, role, photo, tone, anchor, block }: BlockProps<Quote>) {
   return (
     <section className={`quote-block section-pad ${toneClass(tone, "pink")}`} id={anchorId(anchor)}>
       <figure className="reveal">
@@ -433,7 +488,7 @@ function QuoteBlock({ quote, name, role, photo, tone, anchor }: BlockProps<Quote
           “
         </span>
         <blockquote>
-          <p>
+          <p {...field(block, "quote")}>
             <Emphasis text={quote} />
           </p>
         </blockquote>
@@ -441,8 +496,8 @@ function QuoteBlock({ quote, name, role, photo, tone, anchor }: BlockProps<Quote
           <figcaption>
             {imageProps(photo) ? <Picture image={photo} className="quote-photo" sizes="4rem" /> : null}
             <span>
-              {name ? <b>{name}</b> : null}
-              {role ? <small>{role}</small> : null}
+              {name ? <b {...field(block, "name")}>{name}</b> : null}
+              {role ? <small {...field(block, "role")}>{role}</small> : null}
             </span>
           </figcaption>
         ) : null}
@@ -452,13 +507,13 @@ function QuoteBlock({ quote, name, role, photo, tone, anchor }: BlockProps<Quote
 }
 
 type ImageBlockProps = { image: Img; caption?: string; size?: string; tone?: string; anchor?: string };
-function ImageBlock({ image, caption, size, tone, anchor }: BlockProps<ImageBlockProps>) {
+function ImageBlock({ image, caption, size, tone, anchor, block }: BlockProps<ImageBlockProps>) {
   const s = size || "wide";
   return (
     <section className={`image-block image-block--${s} ${s === "full" ? "" : "section-pad"} ${toneClass(tone, "paper")}`} id={anchorId(anchor)}>
       <figure className="reveal">
         <Picture image={image} sizes={s === "inset" ? "(max-width: 720px) 100vw, 60vw" : "100vw"} />
-        {caption ? <figcaption>{caption}</figcaption> : null}
+        {caption ? <figcaption {...field(block, "caption")}>{caption}</figcaption> : null}
       </figure>
     </section>
   );
@@ -470,16 +525,20 @@ function SplitBlock({ image, side, kicker, heading, body, buttonLabel, button, t
     <section className={`split section-pad ${toneClass(tone, "paper")} ${side === "right" ? "split--right" : "split--left"}`} id={anchorId(anchor)} aria-labelledby={heading ? titleId(block) : undefined}>
       <Picture image={image} className="split-art reveal" sizes="(max-width: 720px) 100vw, 50vw" />
       <div className="split-copy reveal">
-        {kicker ? <p className="block-kicker">{kicker}</p> : null}
+        {kicker ? (
+          <p className="block-kicker" {...field(block, "kicker")}>
+            {kicker}
+          </p>
+        ) : null}
         {heading ? (
-          <h2 id={titleId(block)}>
+          <h2 id={titleId(block)} {...field(block, "heading")}>
             <Emphasis text={heading} />
           </h2>
         ) : null}
-        <RichText html={body} className="prose" />
+        <RichText html={body} className="prose" {...field(block, "body")} />
         {buttonLabel ? (
-          <SiteLink link={button} className="button-primary" always>
-            {buttonLabel} <span aria-hidden="true">↗</span>
+          <SiteLink link={button} className="button-primary" always {...field(block, "buttonLabel")}>
+            <Emphasis text={buttonLabel} /> <span aria-hidden="true">↗</span>
           </SiteLink>
         ) : null}
       </div>
@@ -492,7 +551,7 @@ function VideoBlock({ heading, video, caption, tone, anchor, block }: BlockProps
   const src = videoEmbedUrl(video);
   return (
     <section className={`video-block section-pad ${toneClass(tone, "paper")}`} id={anchorId(anchor)} aria-labelledby={heading ? titleId(block) : undefined}>
-      <Head id={titleId(block)} heading={heading} />
+      <Head id={titleId(block)} block={block} heading={heading} />
       <figure className="reveal">
         {src ? (
           <div className="video-frame">
@@ -503,7 +562,7 @@ function VideoBlock({ heading, video, caption, tone, anchor, block }: BlockProps
             <span>Paste a YouTube or Vimeo link</span>
           </div>
         )}
-        {caption ? <figcaption>{caption}</figcaption> : null}
+        {caption ? <figcaption {...field(block, "caption")}>{caption}</figcaption> : null}
       </figure>
     </section>
   );
@@ -516,17 +575,21 @@ function CardsBlock({ heading, intro, columns, items, tone, anchor, block }: Blo
   const withImages = cards.some((c) => imageProps(c.image));
   return (
     <section className={`cards section-pad ${toneClass(tone, "paper")}`} id={anchorId(anchor)} aria-labelledby={heading ? titleId(block) : undefined}>
-      <Head id={titleId(block)} heading={heading} intro={intro} />
+      <Head id={titleId(block)} block={block} heading={heading} intro={intro} />
       <div className={`card-grid card-grid--${columns || "3"}`}>
         {cards.map((card, i) => {
           const inner = (
             <>
               {withImages ? <Picture image={card.image} className="card-art" sizes="(max-width: 720px) 100vw, 33vw" /> : null}
               <span className="card-number">{String(i + 1).padStart(2, "0")}</span>
-              <h3>{card.title}</h3>
-              {card.body ? <p>{card.body}</p> : null}
+              <h3 {...field(block, `items.${i}.title`)}>{card.title}</h3>
+              {card.body ? (
+                <p {...field(block, `items.${i}.body`)}>
+                  <Emphasis text={card.body} />
+                </p>
+              ) : null}
               {card.linkLabel ? (
-                <span className="card-link">
+                <span className="card-link" {...field(block, `items.${i}.linkLabel`)}>
                   {card.linkLabel} <b aria-hidden="true">↗</b>
                 </span>
               ) : null}
@@ -553,13 +616,17 @@ function StepsBlock({ heading, intro, items, tone, anchor, block }: BlockProps<S
   const steps = items ?? [];
   return (
     <section className={`steps section-pad ${toneClass(tone, "paper")}`} id={anchorId(anchor)} aria-labelledby={heading ? titleId(block) : undefined}>
-      <Head id={titleId(block)} heading={heading} intro={intro} />
+      <Head id={titleId(block)} block={block} heading={heading} intro={intro} />
       <ol className="step-list" style={{ "--steps": Math.min(Math.max(steps.length, 1), 4) } as CSSProperties}>
         {steps.map((step, i) => (
           <li key={step._key} className="step reveal">
             <span className="step-number">{String(i + 1).padStart(2, "0")}</span>
-            <h3>{step.title}</h3>
-            {step.body ? <p>{step.body}</p> : null}
+            <h3 {...field(block, `items.${i}.title`)}>{step.title}</h3>
+            {step.body ? (
+              <p {...field(block, `items.${i}.body`)}>
+                <Emphasis text={step.body} />
+              </p>
+            ) : null}
           </li>
         ))}
       </ol>
@@ -571,15 +638,25 @@ type Person = { _key: string; photo?: Img; name: string; role?: string; bio?: st
 function TeamBlock({ heading, intro, items, tone, anchor, block }: BlockProps<{ heading?: string; intro?: string; items?: Person[]; tone?: string; anchor?: string }>) {
   return (
     <section className={`team section-pad ${toneClass(tone, "paper")}`} id={anchorId(anchor)} aria-labelledby={heading ? titleId(block) : undefined}>
-      <Head id={titleId(block)} heading={heading} intro={intro} />
+      <Head id={titleId(block)} block={block} heading={heading} intro={intro} />
       <ul className="team-grid">
-        {(items ?? []).map((p) => {
+        {(items ?? []).map((p, i) => {
           const inner = (
             <>
               <Picture image={p.photo} className="team-photo" sizes="(max-width: 720px) 50vw, 25vw" />
-              <span className="team-name">{p.name}</span>
-              {p.role ? <span className="team-role">{p.role}</span> : null}
-              {p.bio ? <span className="team-bio">{p.bio}</span> : null}
+              <span className="team-name" {...field(block, `items.${i}.name`)}>
+                {p.name}
+              </span>
+              {p.role ? (
+                <span className="team-role" {...field(block, `items.${i}.role`)}>
+                  {p.role}
+                </span>
+              ) : null}
+              {p.bio ? (
+                <span className="team-bio" {...field(block, `items.${i}.bio`)}>
+                  <Emphasis text={p.bio} />
+                </span>
+              ) : null}
             </>
           );
           return (
@@ -606,14 +683,18 @@ function StatsBlock({ heading, items, tone, anchor, block }: BlockProps<Stats>) 
     <section className={`stats-block ${toneClass(tone, "ink")}`} id={anchorId(anchor)} aria-labelledby={heading ? titleId(block) : undefined}>
       {heading ? (
         <div className="section-pad">
-          <Head id={titleId(block)} heading={heading} />
+          <Head id={titleId(block)} block={block} heading={heading} />
         </div>
       ) : null}
       <div className="stats-grid" style={{ "--stats": Math.max(stats.length, 1) } as CSSProperties}>
-        {stats.map((stat) => (
+        {stats.map((stat, i) => (
           <div key={stat._key} className={/\d/.test(stat.value) ? "stat reveal" : "stat stat--word reveal"}>
-            <span className="stat-value">{stat.value}</span>
-            <span className="stat-label">{stat.label}</span>
+            <span className="stat-value" {...field(block, `items.${i}.value`)}>
+              {stat.value}
+            </span>
+            <span className="stat-label" {...field(block, `items.${i}.label`)}>
+              {stat.label}
+            </span>
           </div>
         ))}
       </div>
@@ -622,11 +703,15 @@ function StatsBlock({ heading, items, tone, anchor, block }: BlockProps<Stats>) 
 }
 
 type Logo = { _key: string; image?: Img; name: string; link?: LinkValue | null };
-function LogosBlock({ label, items, tone, anchor }: BlockProps<{ label?: string; items?: Logo[]; tone?: string; anchor?: string }>) {
+function LogosBlock({ label, items, tone, anchor, block }: BlockProps<{ label?: string; items?: Logo[]; tone?: string; anchor?: string }>) {
   return (
     <section className={`logos section-pad ${toneClass(tone, "paper")}`} id={anchorId(anchor)}>
       <div className="logos-inner reveal">
-        {label ? <p className="block-kicker">{label}</p> : null}
+        {label ? (
+          <p className="block-kicker" {...field(block, "label")}>
+            {label}
+          </p>
+        ) : null}
         <ul>
           {(items ?? []).map((logo) => {
             const img = imageProps(logo.image);
@@ -659,11 +744,15 @@ function ContactBlock({ heading, body, email, phone, tone, anchor, block, site }
       <div className="contact-inner">
         <div className="reveal">
           {heading ? (
-            <h2 id={titleId(block)}>
+            <h2 id={titleId(block)} {...field(block, "heading")}>
               <Emphasis text={heading} />
             </h2>
           ) : null}
-          {body ? <p>{body}</p> : null}
+          {body ? (
+            <p {...field(block, "body")}>
+              <Emphasis text={body} />
+            </p>
+          ) : null}
         </div>
         <div className="contact-links reveal">
           {mail ? (

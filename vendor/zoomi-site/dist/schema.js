@@ -143,6 +143,21 @@ function isEmpty(value) {
 export function stripTags(html) {
     return html.replace(/<[^>]*>/g, "");
 }
+const ENTITIES = { amp: "&", lt: "<", gt: ">", quot: '"', "#39": "'", apos: "'", nbsp: "\u00a0" };
+/** Decodes the few entities stored text uses. */
+export function decodeEntities(text) {
+    return text.replace(/&(amp|lt|gt|quot|#39|apos|nbsp|#\d+|#x[0-9a-f]+);/gi, (m, name) => {
+        const known = ENTITIES[name.toLowerCase()];
+        if (known)
+            return known;
+        const code = name[1] === "x" || name[1] === "X" ? parseInt(name.slice(2), 16) : parseInt(name.slice(1), 10);
+        return Number.isFinite(code) ? String.fromCodePoint(code) : m;
+    });
+}
+/** The visible text of a text field, without formatting tags: for alt text, aria labels, titles and structured data. */
+export function plainText(value) {
+    return typeof value === "string" ? decodeEntities(stripTags(value)) : "";
+}
 function checkField(field, value, where, issues, pageIds) {
     if (field.required && isEmpty(value)) {
         issues.push({ ...where, message: `${field.label} is required.` });
@@ -155,8 +170,11 @@ function checkField(field, value, where, issues, pageIds) {
         case "text":
             if (typeof value !== "string")
                 issues.push({ ...where, message: `${field.label} must be text.` });
-            else if (field.max && value.length > field.max)
-                issues.push({ ...where, message: `${field.label} is ${value.length} characters; the limit is ${field.max}.` });
+            else {
+                const length = field.inline ? plainText(value).length : value.length;
+                if (field.max && length > field.max)
+                    issues.push({ ...where, message: `${field.label} is ${length} characters; the limit is ${field.max}.` });
+            }
             break;
         case "image": {
             const img = value;

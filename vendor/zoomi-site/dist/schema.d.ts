@@ -35,6 +35,14 @@ type FieldBase = {
 export type TextField = FieldBase & {
     type: "text";
     multiline?: boolean;
+    /**
+     * Allows bold, italic and links inside the text. The value is then a small HTML fragment (<strong>, <em>,
+     * <a href>, with new lines kept as "\n"); render it with <Inline> from @zoomi/site/render. Length limits count
+     * the visible text only.
+     */
+    inline?: boolean;
+    /** With `inline`: older values mark italic with *asterisks*, and the editor shows them as italic. */
+    asterisks?: boolean;
     max?: number;
     placeholder?: string;
     default?: string;
@@ -298,6 +306,10 @@ export type ValidationIssue = {
     message: string;
 };
 export declare function stripTags(html: string): string;
+/** Decodes the few entities stored text uses. */
+export declare function decodeEntities(text: string): string;
+/** The visible text of a text field, without formatting tags: for alt text, aria labels, titles and structured data. */
+export declare function plainText(value: unknown): string;
 export declare function validateBlocks(schema: SiteSchema, blocks: BlockInstance[], pageIds?: Set<string>): ValidationIssue[];
 export declare function validateBrand(brand: Brand): ValidationIssue[];
 export declare function luminance(hex: string): number;

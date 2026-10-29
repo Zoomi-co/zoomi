@@ -1,6 +1,6 @@
 import { defineSchema, type SelectField, type TextField } from "@zoomi/site/schema";
 
-const EMPHASIS = "Wrap words in *asterisks* for the italic serif. New lines break the heading.";
+const EMPHASIS = "Italic words show in the serif. New lines break the heading.";
 
 /** Background of a section. The accent (italic serif, rules, button) follows it. */
 const tone = (fallback: string): SelectField => ({
@@ -21,7 +21,7 @@ const tone = (fallback: string): SelectField => ({
 
 const anchor: TextField = { type: "text", label: "Anchor", help: "Lets a menu link jump here, e.g. #pricing. Letters, numbers and dashes.", max: 40 };
 
-const heading = (fallback: string, max = 80): TextField => ({ type: "text", label: "Heading", help: EMPHASIS, multiline: true, max, default: fallback });
+const heading = (fallback: string, max = 80): TextField => ({ type: "text", inline: true, asterisks: true, label: "Heading", help: EMPHASIS, multiline: true, max, default: fallback });
 
 /**
  * The sections of zoomi.co and the text Dan can edit in each. Registered with the CMS on every build,
@@ -41,9 +41,9 @@ export const schema = defineSchema({
       fields: {
         kicker: { type: "text", label: "Small text, top left", max: 60, default: "Zoomi / Design-led marketing" },
         kickerRight: { type: "text", label: "Small text, top right", max: 30, default: "Est. 2023" },
-        headline: { type: "text", label: "Headline", multiline: true, required: true, max: 80, help: "One row per line (three rows fit best). Wrap a whole row in *asterisks* to set it in the coral serif.", default: "Design that\ngets you\n*noticed.*" },
-        intro: { type: "text", label: "Intro", multiline: true, max: 320 },
-        buttonLabel: { type: "text", label: "Button text", max: 30, default: "Get in touch" },
+        headline: { type: "text", inline: true, asterisks: true, label: "Headline", multiline: true, required: true, max: 80, help: "One row per line (three rows fit best). Make a whole row italic to set it in the coral serif.", default: "Design that\ngets you\n<em>noticed.</em>" },
+        intro: { type: "text", inline: true, asterisks: true, label: "Intro", multiline: true, max: 320 },
+        buttonLabel: { type: "text", inline: true, asterisks: true, label: "Button text", max: 30, default: "Get in touch" },
         button: { type: "link", label: "Button link" },
         art: {
           type: "select",
@@ -71,9 +71,9 @@ export const schema = defineSchema({
       description: "Headline and intro for an inside page, with an optional image beside or below.",
       fields: {
         kicker: { type: "text", label: "Small text above", max: 60, default: "Zoomi / Services" },
-        headline: { type: "text", label: "Headline", help: EMPHASIS, multiline: true, required: true, max: 90, default: "A page that\n*earns* attention." },
-        intro: { type: "text", label: "Intro", multiline: true, max: 360, default: "One or two sentences on what this page is about and who it's for. Keep it plain and specific." },
-        buttonLabel: { type: "text", label: "Button text", max: 30, default: "Get in touch" },
+        headline: { type: "text", inline: true, asterisks: true, label: "Headline", help: EMPHASIS, multiline: true, required: true, max: 90, default: "A page that\n<em>earns</em> attention." },
+        intro: { type: "text", inline: true, asterisks: true, label: "Intro", multiline: true, max: 360, default: "One or two sentences on what this page is about and who it's for. Keep it plain and specific." },
+        buttonLabel: { type: "text", inline: true, asterisks: true, label: "Button text", max: 30, default: "Get in touch" },
         button: { type: "link", label: "Button link" },
         image: { type: "image", label: "Image" },
         layout: {
@@ -97,7 +97,7 @@ export const schema = defineSchema({
       description: "A heading and paragraphs, side by side or in one column.",
       fields: {
         kicker: { type: "text", label: "Small text above", max: 60 },
-        heading: heading("Why it *matters.*"),
+        heading: heading("Why it <em>matters.</em>"),
         body: { type: "richtext", label: "Text", default: "<p>Write the substance here. Short paragraphs read best on this site: two to four sentences each, one idea per paragraph.</p><p>Links, bold text and lists all work.</p>" },
         layout: {
           type: "select",
@@ -118,7 +118,7 @@ export const schema = defineSchema({
       thumbnail: "/blocks/statement.png",
       description: "One big sentence across the page.",
       fields: {
-        text: { type: "text", label: "Statement", help: EMPHASIS, multiline: true, required: true, max: 200, default: "Good design is the *fastest* way to be taken seriously." },
+        text: { type: "text", inline: true, asterisks: true, label: "Statement", help: EMPHASIS, multiline: true, required: true, max: 200, default: "Good design is the <em>fastest</em> way to be taken seriously." },
         note: { type: "text", label: "Small text below", max: 80 },
         tone: tone("deep"),
         anchor,
@@ -130,7 +130,7 @@ export const schema = defineSchema({
       thumbnail: "/blocks/quote.png",
       description: "A testimonial with the person's name, role and photo.",
       fields: {
-        quote: { type: "text", label: "Quote", help: EMPHASIS, multiline: true, required: true, max: 400, default: "They made us look like the company we *already were.*" },
+        quote: { type: "text", inline: true, asterisks: true, label: "Quote", help: EMPHASIS, multiline: true, required: true, max: 400, default: "They made us look like the company we <em>already were.</em>" },
         name: { type: "text", label: "Name", max: 60, default: "Full name" },
         role: { type: "text", label: "Role and company", max: 80, default: "Title, Company" },
         photo: { type: "image", label: "Photo" },
@@ -179,9 +179,9 @@ export const schema = defineSchema({
           default: "left",
         },
         kicker: { type: "text", label: "Small text above", max: 60, default: "01 / Approach" },
-        heading: heading("Made for the\nway you *sell.*"),
+        heading: heading("Made for the\nway you <em>sell.</em>"),
         body: { type: "richtext", label: "Text", default: "<p>Explain the idea in a few sentences. Say what you do, how it works and what the reader gets from it.</p>" },
-        buttonLabel: { type: "text", label: "Button text", max: 30 },
+        buttonLabel: { type: "text", inline: true, asterisks: true, label: "Button text", max: 30 },
         button: { type: "link", label: "Button link" },
         tone: tone("paper"),
         anchor,
@@ -208,7 +208,7 @@ export const schema = defineSchema({
       thumbnail: "/blocks/services.png",
       description: "Ruled rows with a name, description and tags, like “What we do.”",
       fields: {
-        heading: { type: "text", label: "Heading", help: EMPHASIS, required: true, max: 60, default: "What we *do.*" },
+        heading: { type: "text", inline: true, asterisks: true, label: "Heading", help: EMPHASIS, required: true, max: 60, default: "What we <em>do.</em>" },
         doodle: { type: "toggle", label: "Paper doodle beside the heading", default: true },
         items: {
           type: "list",
@@ -218,7 +218,7 @@ export const schema = defineSchema({
           max: 12,
           fields: {
             title: { type: "text", label: "Name", required: true, max: 40 },
-            body: { type: "text", label: "Description", multiline: true, max: 240 },
+            body: { type: "text", inline: true, asterisks: true, label: "Description", multiline: true, max: 240 },
             tags: { type: "text", label: "Tags", multiline: true, help: "One per line.", max: 200 },
           },
           default: [
@@ -236,8 +236,8 @@ export const schema = defineSchema({
       thumbnail: "/blocks/cards.png",
       description: "A grid of cards, each with an optional image, title, text and link.",
       fields: {
-        heading: heading("Three ways\nto *start.*"),
-        intro: { type: "text", label: "Intro", multiline: true, max: 240 },
+        heading: heading("Three ways\nto <em>start.</em>"),
+        intro: { type: "text", inline: true, asterisks: true, label: "Intro", multiline: true, max: 240 },
         columns: {
           type: "select",
           label: "Cards per row",
@@ -256,7 +256,7 @@ export const schema = defineSchema({
           fields: {
             image: { type: "image", label: "Image" },
             title: { type: "text", label: "Title", required: true, max: 60 },
-            body: { type: "text", label: "Text", multiline: true, max: 280 },
+            body: { type: "text", inline: true, asterisks: true, label: "Text", multiline: true, max: 280 },
             linkLabel: { type: "text", label: "Link text", max: 30 },
             link: { type: "link", label: "Link" },
             color: {
@@ -288,8 +288,8 @@ export const schema = defineSchema({
       thumbnail: "/blocks/steps.png",
       description: "Numbered steps across the page, for a process or timeline.",
       fields: {
-        heading: heading("How it *works.*"),
-        intro: { type: "text", label: "Intro", multiline: true, max: 240 },
+        heading: heading("How it <em>works.</em>"),
+        intro: { type: "text", inline: true, asterisks: true, label: "Intro", multiline: true, max: 240 },
         items: {
           type: "list",
           label: "Steps",
@@ -297,7 +297,7 @@ export const schema = defineSchema({
           max: 8,
           fields: {
             title: { type: "text", label: "Title", required: true, max: 50 },
-            body: { type: "text", label: "Text", multiline: true, max: 240 },
+            body: { type: "text", inline: true, asterisks: true, label: "Text", multiline: true, max: 240 },
           },
           default: [
             { title: "Talk", body: "What happens first, and what the client brings to it." },
@@ -315,8 +315,8 @@ export const schema = defineSchema({
       thumbnail: "/blocks/team.png",
       description: "Photos, names and roles of the people behind the work.",
       fields: {
-        heading: heading("The *people.*"),
-        intro: { type: "text", label: "Intro", multiline: true, max: 240 },
+        heading: heading("The <em>people.</em>"),
+        intro: { type: "text", inline: true, asterisks: true, label: "Intro", multiline: true, max: 240 },
         items: {
           type: "list",
           label: "People",
@@ -326,7 +326,7 @@ export const schema = defineSchema({
             photo: { type: "image", label: "Photo" },
             name: { type: "text", label: "Name", required: true, max: 60 },
             role: { type: "text", label: "Role", max: 60 },
-            bio: { type: "text", label: "Short bio", multiline: true, max: 240 },
+            bio: { type: "text", inline: true, asterisks: true, label: "Short bio", multiline: true, max: 240 },
             link: { type: "link", label: "Link" },
           },
           default: [
@@ -394,8 +394,8 @@ export const schema = defineSchema({
       thumbnail: "/blocks/faq.png",
       description: "Numbered questions that open and close. Also tells Google these are FAQs.",
       fields: {
-        heading: { type: "text", label: "Heading", help: EMPHASIS, required: true, max: 60, default: "Good *questions.*" },
-        intro: { type: "text", label: "Intro", multiline: true, max: 200 },
+        heading: { type: "text", inline: true, asterisks: true, label: "Heading", help: EMPHASIS, required: true, max: 60, default: "Good <em>questions.</em>" },
+        intro: { type: "text", inline: true, asterisks: true, label: "Intro", multiline: true, max: 200 },
         items: {
           type: "list",
           label: "Questions",
@@ -419,8 +419,8 @@ export const schema = defineSchema({
       thumbnail: "/blocks/ventures.png",
       description: "Rows linking to the other Zoomi companies, each with a colored badge.",
       fields: {
-        heading: { type: "text", label: "Heading", help: EMPHASIS, required: true, max: 60, default: "Other Zoomi *companies.*" },
-        intro: { type: "text", label: "Intro", multiline: true, max: 320 },
+        heading: { type: "text", inline: true, asterisks: true, label: "Heading", help: EMPHASIS, required: true, max: 60, default: "Other Zoomi <em>companies.</em>" },
+        intro: { type: "text", inline: true, asterisks: true, label: "Intro", multiline: true, max: 320 },
         items: {
           type: "list",
           label: "Companies",
@@ -429,7 +429,7 @@ export const schema = defineSchema({
           fields: {
             name: { type: "text", label: "Name", required: true, max: 40 },
             tagline: { type: "text", label: "Tagline", max: 60 },
-            description: { type: "text", label: "Description", multiline: true, max: 240 },
+            description: { type: "text", inline: true, asterisks: true, label: "Description", multiline: true, max: 240 },
             tags: { type: "text", label: "Tags", help: "Separate with commas.", max: 60 },
             link: { type: "link", label: "Link" },
             color: {
@@ -468,10 +468,10 @@ export const schema = defineSchema({
       thumbnail: "/blocks/audit.png",
       description: "A colored band with a big heading, points and a button.",
       fields: {
-        heading: { type: "text", label: "Heading", help: EMPHASIS, multiline: true, required: true, max: 80, default: "Ready when\n*you are.*" },
-        body: { type: "text", label: "Text", multiline: true, max: 320, default: "A sentence on what happens when someone gets in touch." },
+        heading: { type: "text", inline: true, asterisks: true, label: "Heading", help: EMPHASIS, multiline: true, required: true, max: 80, default: "Ready when\n<em>you are.</em>" },
+        body: { type: "text", inline: true, asterisks: true, label: "Text", multiline: true, max: 320, default: "A sentence on what happens when someone gets in touch." },
         points: { type: "text", label: "Points", multiline: true, help: "One per line.", max: 240 },
-        buttonLabel: { type: "text", label: "Button text", max: 40, default: "Get in touch" },
+        buttonLabel: { type: "text", inline: true, asterisks: true, label: "Button text", max: 40, default: "Get in touch" },
         button: { type: "link", label: "Button link" },
         tone: tone("blue"),
         anchor,
@@ -483,8 +483,8 @@ export const schema = defineSchema({
       thumbnail: "/blocks/studio.png",
       description: "Dark section with a big three-row statement, numbers and a coral note.",
       fields: {
-        heading: { type: "text", label: "Statement", help: `One row per line. ${EMPHASIS.split(".")[0]}.`, multiline: true, required: true, max: 120, default: "We design it.\nWe get it *seen.*\nWe measure it." },
-        body: { type: "text", label: "Text", multiline: true, help: "Leave a blank line between paragraphs.", max: 600 },
+        heading: { type: "text", inline: true, asterisks: true, label: "Statement", help: `One row per line. ${EMPHASIS.split(".")[0]}.`, multiline: true, required: true, max: 120, default: "We design it.\nWe get it <em>seen.</em>\nWe measure it." },
+        body: { type: "text", inline: true, asterisks: true, label: "Text", multiline: true, help: "Leave a blank line between paragraphs.", max: 600 },
         stats: {
           type: "list",
           label: "Numbers",
@@ -496,7 +496,7 @@ export const schema = defineSchema({
           },
         },
         noteLabel: { type: "text", label: "Note label", max: 40, default: "Our operating principle" },
-        note: { type: "text", label: "Note", multiline: true, max: 120 },
+        note: { type: "text", inline: true, asterisks: true, label: "Note", multiline: true, max: 120 },
         anchor,
       },
     },
@@ -506,8 +506,8 @@ export const schema = defineSchema({
       thumbnail: "/blocks/contact.png",
       description: "A heading with big email and phone links. Uses Brand settings when left empty.",
       fields: {
-        heading: heading("Let's talk\nabout *yours.*"),
-        body: { type: "text", label: "Text", multiline: true, max: 280 },
+        heading: heading("Let's talk\nabout <em>yours.</em>"),
+        body: { type: "text", inline: true, asterisks: true, label: "Text", multiline: true, max: 280 },
         email: { type: "text", label: "Email", help: "Leave empty to use the email in Brand.", max: 120 },
         phone: { type: "text", label: "Phone", help: "Leave empty to use the phone in Brand.", max: 40 },
         tone: tone("coral"),
@@ -529,7 +529,7 @@ export const schema = defineSchema({
     service: {
       label: "Service",
       description: "Header, image and text, steps, questions and a call to action.",
-      blocks: [{ type: "pageHeader" }, { type: "split" }, { type: "services", props: { heading: "What's *included.*", doodle: false } }, { type: "steps" }, { type: "faq" }, { type: "audit" }],
+      blocks: [{ type: "pageHeader" }, { type: "split" }, { type: "services", props: { heading: "What's <em>included.</em>", doodle: false } }, { type: "steps" }, { type: "faq" }, { type: "audit" }],
     },
     landing: {
       label: "Landing page",
@@ -539,12 +539,12 @@ export const schema = defineSchema({
     about: {
       label: "About",
       description: "Header, statement, text, people and contact.",
-      blocks: [{ type: "pageHeader", props: { kicker: "Zoomi / About", headline: "Who we *are.*" } }, { type: "statement" }, { type: "text" }, { type: "team" }, { type: "contact" }],
+      blocks: [{ type: "pageHeader", props: { kicker: "Zoomi / About", headline: "Who we <em>are.</em>" } }, { type: "statement" }, { type: "text" }, { type: "team" }, { type: "contact" }],
     },
     article: {
       label: "Article",
       description: "Header with a wide image and one column of text.",
-      blocks: [{ type: "pageHeader", props: { kicker: "Zoomi / Notes", headline: "A headline that\nsays the *point.*", buttonLabel: "", layout: "below" } }, { type: "text", props: { heading: "", layout: "column" } }, { type: "quote", props: { tone: "deep" } }, { type: "text", props: { heading: "", layout: "column" } }],
+      blocks: [{ type: "pageHeader", props: { kicker: "Zoomi / Notes", headline: "A headline that\nsays the <em>point.</em>", buttonLabel: "", layout: "below" } }, { type: "text", props: { heading: "", layout: "column" } }, { type: "quote", props: { tone: "deep" } }, { type: "text", props: { heading: "", layout: "column" } }],
     },
   },
   brand: {

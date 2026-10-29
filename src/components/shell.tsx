@@ -1,11 +1,12 @@
 import type { ShellProps } from "@zoomi/site/preview";
+import { navField, skip } from "@zoomi/site/render";
 import { linkHref } from "@zoomi/site/schema";
 import { SiteEffects } from "./site-effects";
 import { SiteLink } from "./site-link";
 import { Year } from "./year";
 
 /** Header, mobile menu and footer from Brand and Navigation settings. Used by the live site and the CMS preview. */
-export function Shell({ site, page, children }: ShellProps) {
+export function Shell({ site, page, children, preview }: ShellProps) {
   const { brand, nav } = site;
   const legalName = brand.business.name || site.name;
   // "Zoomi, LLC" → ZOOMI for the wordmark.
@@ -30,8 +31,8 @@ export function Shell({ site, page, children }: ShellProps) {
 
         <nav className="desktop-nav" aria-label="Primary navigation">
           {nav.header.map((item, i) => (
-            <SiteLink key={item.id} link={item.link}>
-              <span>{String(i + 1).padStart(2, "0")}</span> {item.label}
+            <SiteLink key={item.id} link={item.link} {...navField(preview, item.id)}>
+              <span {...skip(preview)}>{String(i + 1).padStart(2, "0")}</span> {item.label}
             </SiteLink>
           ))}
         </nav>
@@ -53,8 +54,8 @@ export function Shell({ site, page, children }: ShellProps) {
       <nav className="mobile-menu" id="mobile-menu" aria-label="Mobile navigation" aria-hidden="true">
         <div className="mobile-menu-inner">
           {nav.header.map((item, i) => (
-            <SiteLink key={item.id} link={item.link}>
-              <small>{String(i + 1).padStart(2, "0")}</small> {item.label}
+            <SiteLink key={item.id} link={item.link} {...navField(preview, item.id)}>
+              <small {...skip(preview)}>{String(i + 1).padStart(2, "0")}</small> {item.label}
             </SiteLink>
           ))}
         </div>
@@ -96,7 +97,7 @@ export function Shell({ site, page, children }: ShellProps) {
           {footer?.items.length ? (
             <nav aria-label="Footer navigation">
               {footer.items.map((item) => (
-                <a key={item.id} href={linkHref(item.link)}>
+                <a key={item.id} href={linkHref(item.link)} {...navField(preview, item.id)}>
                   {item.label}
                 </a>
               ))}

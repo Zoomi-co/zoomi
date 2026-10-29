@@ -1,4 +1,5 @@
-import { Fragment } from "react";
+import { Inline } from "@zoomi/site/render";
+import { plainText } from "@zoomi/site/schema";
 
 /** Non-empty trimmed lines of a multiline field. */
 export function lines(text: string | null | undefined): string[] {
@@ -10,22 +11,23 @@ export function list(text: string | null | undefined, separator: string): string
   return (text ?? "").split(separator).map((l) => l.trim()).filter(Boolean);
 }
 
-/** The text without emphasis markers, for aria labels and structured data. */
-export function plain(text: string): string {
-  return text.replace(/\*/g, "");
+/** The text without formatting, for aria labels and structured data. */
+export function plain(text: string | null | undefined): string {
+  return plainText(text ?? "").replace(/\*/g, "");
 }
 
-/** Renders *words* as <em> (the italic serif in the design) and new lines as <br>. */
+const WHOLE_EM = /^(?:\*([^*]+)\*|<em>((?:(?!<\/?em>).)*)<\/em>)$/;
+
+/** A row that is italic from end to end (the coral serif rows), and its text without the italic. */
+export function wholeItalic(row: string): string | null {
+  const m = WHOLE_EM.exec(row.trim());
+  return m ? (m[1] ?? m[2]) : null;
+}
+
+/**
+ * Text with bold, italic (the italic serif in the design) and links, and new lines as <br>.
+ * Older content marks italic with *asterisks*; that still works.
+ */
 export function Emphasis({ text }: { text: string | null | undefined }) {
-  const rows = (text ?? "").split("\n");
-  return (
-    <>
-      {rows.map((row, r) => (
-        <Fragment key={r}>
-          {r > 0 ? <br /> : null}
-          {row.split(/(\*[^*]+\*)/).map((part, i) => (part.startsWith("*") && part.endsWith("*") && part.length > 2 ? <em key={i}>{part.slice(1, -1)}</em> : part))}
-        </Fragment>
-      ))}
-    </>
-  );
+  return <Inline value={text ?? ""} asterisks />;
 }
