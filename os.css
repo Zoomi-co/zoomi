@@ -2359,7 +2359,7 @@ img {
 .ai-shift-facts {
     display: grid;
     border-top: 1px solid rgba(255,255,255,.22);
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
 }
 
 .ai-fact {
