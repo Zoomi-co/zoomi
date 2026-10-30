@@ -2272,3 +2272,51 @@ img {
     text-decoration-thickness: 1px;
     text-underline-offset: 0.2em;
 }
+
+/* Project CTA */
+
+.desktop-nav a.nav-cta {
+    padding: 0.55rem 0.95rem;
+    border-radius: 999px;
+    background: var(--coral);
+    transition: background 250ms ease;
+}
+
+.desktop-nav a.nav-cta span {
+    color: var(--ink);
+}
+
+.desktop-nav a.nav-cta::after {
+    display: none;
+}
+
+.desktop-nav a.nav-cta:hover {
+    background: var(--yellow);
+}
+
+.section-cta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.25rem 2rem;
+    margin-top: clamp(2.5rem, 5vw, 4.5rem);
+    padding-top: clamp(1.5rem, 3vw, 2.5rem);
+    border-top: 1px solid var(--line);
+}
+
+.section-cta p {
+    margin: 0;
+    font-size: clamp(1.25rem, 2.2vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.05em;
+    line-height: 1.1;
+}
+
+.stat-note .button-primary {
+    margin-top: 2rem;
+}
+
+.stat--word .stat-value {
+    font-size: clamp(3rem, 5.5vw, 6rem);
+}
