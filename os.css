@@ -2313,10 +2313,6 @@ img {
     line-height: 1.1;
 }
 
-.stat-note .button-primary {
+.studio-copy .button-primary {
     margin-top: 2rem;
-}
-
-.stat--word .stat-value {
-    font-size: clamp(3rem, 5.5vw, 6rem);
 }
