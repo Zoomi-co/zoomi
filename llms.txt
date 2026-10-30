@@ -4,9 +4,10 @@
 
 ## Services
 
-- Brand identity: logo and identity systems, brand guidelines, messaging and voice.
-- Websites: design and build, landing pages, technical SEO foundations.
-- Strategy and growth: positioning, marketing roadmaps, analytics and reporting.
+- [Brand identity](https://zoomi.co/services/brand-identity): logo and identity systems, brand guidelines, messaging and voice.
+- [Websites](https://zoomi.co/services/web-design): design and build, landing pages, technical SEO foundations.
+- [Strategy and growth](https://zoomi.co/services/marketing-strategy): positioning, marketing roadmaps, analytics and reporting.
+- [SEO](https://zoomi.co/services/seo): technical SEO in every website, plus Zoomi Audit for ongoing tracking.
 
 ## Software
 
